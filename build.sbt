@@ -8,6 +8,8 @@ scalacOptions ++= Seq("-deprecation")
 lazy val root = (project in file(".")) enablePlugins PlayScala
 
 libraryDependencies ++= Seq(
+  ws,
   guice,
+  "org.scala-lang.modules" %% "scala-async" % "0.9.7",
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.1" % Test
 )

@@ -5,9 +5,9 @@ import javax.inject._
 import play.api.mvc._
 
 @Singleton
-class HomeController @Inject()(c: ControllerComponents) extends AbstractController(c) {
+class HomeController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
 
-  def index = Action { implicit request =>
+  def index = Action {
     Ok(views.html.index())
   }
 
