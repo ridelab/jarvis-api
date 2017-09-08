@@ -17,13 +17,23 @@ import scala.concurrent._
 class UnitApiService @Inject()(
     ws: WSClient,
     config: Configuration,
+    unitAuthService: UnitAuthService,
 )(implicit executor: ExecutionContext) {
 
+  private val sceneId = config.get[Int]("unit.scene-id")
+
   def utterance(
-      sceneId: Int,
       query: String,
       sessionId: String,
-      accessToken: String
+  ): Future[JsValue] = async {
+    await(fetchUtterance(query, sessionId, sceneId, await(unitAuthService.accessToken)))
+  }
+
+  def fetchUtterance(
+      query: String,
+      sessionId: String,
+      sceneId: Int,
+      accessToken: String,
   ): Future[JsValue] = async {
     val url = "https://aip.baidubce.com/rpc/2.0/solution/v1/unit_utterance"
     val data = Json obj (

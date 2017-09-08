@@ -3,6 +3,7 @@ package services
 import javax.inject._
 
 import play.api._
+import play.api.cache._
 import play.api.libs.ws._
 
 import scala.async.Async._
@@ -11,23 +12,32 @@ import scala.concurrent.duration._
 
 /**
   * auth: `https://ai.baidu.com/docs#/auth/top`
+  * cache: `https://playframework.com/documentation/latest/ScalaCache`
   */
 @Singleton
 class UnitAuthService @Inject()(
     ws: WSClient,
+    cache: AsyncCacheApi,
     config: Configuration,
 )(implicit executor: ExecutionContext) {
 
   private val apiKey = config.get[String]("unit.api-key")
   private val secretKey = config.get[String]("unit.secret-key")
+  private val accessTokenCacheKey = "unit.access-token"
+  private val accessTokenCacheExpiration: Duration = 10.days
 
-  // TODO
-  val accessToken: String = (
-    config.getOptional[String]("unit.access-token")
-      getOrElse (Await result (fetchAccessToken, 10.seconds))
-  )
+  config.getOptional[String](accessTokenCacheKey) match {
+    case Some(accessToken) => setAccessTokenCache(accessToken)
+    case None              => fetchAccessToken() foreach setAccessTokenCache
+  }
 
-  private def fetchAccessToken: Future[String] = async {
+  def accessToken: Future[String] =
+    cache.getOrElseUpdate[String](accessTokenCacheKey, accessTokenCacheExpiration)(fetchAccessToken())
+
+  private def setAccessTokenCache(accessToken: String) =
+    cache set (accessTokenCacheKey, accessToken, accessTokenCacheExpiration)
+
+  private def fetchAccessToken(): Future[String] = async {
     val url = "https://aip.baidubce.com/oauth/2.0/token"
     val parameters = Seq(
       "grant_type" -> "client_credentials",
@@ -41,8 +51,8 @@ class UnitAuthService @Inject()(
     )
     val result = response.json
     val accessToken = (result \ "access_token").as[String]
-    val expires = (result \ "expires_in").as[Long]
-    Logger debug s"access-token = '$accessToken', expires = $expires"
+    val expiration = (result \ "expires_in").as[Long]
+    Logger debug s"access-token = '$accessToken', expiration = $expiration seconds"
     accessToken
   }
 
