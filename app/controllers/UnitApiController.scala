@@ -13,7 +13,8 @@ class UnitApiController @Inject()(
     cc: ControllerComponents,
     unitApiService: UnitApiService,
 )(implicit executor: ExecutionContext)
-    extends AbstractController(cc) {
+    extends AbstractController(cc)
+    with PrettyJsonResult {
 
   def utterance = (Action async parse.json) { implicit request =>
     val query = (request.body \ "query").as[String]
