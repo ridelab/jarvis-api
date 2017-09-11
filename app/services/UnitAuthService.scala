@@ -60,7 +60,7 @@ class UnitAuthService @Inject()(
     val result = response.json
     val accessToken = (result \ "access_token").as[String]
     val expiration = (result \ "expires_in").as[Long]
-    Logger debug s"access-token = '$accessToken', expiration = $expiration seconds"
+    Logger debug s"unit auth / access-token = '$accessToken', expiration = $expiration seconds"
     accessToken
   }
 
