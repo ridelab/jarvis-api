@@ -2,9 +2,9 @@ package entities
 
 trait BaseMessage {
 
-  def receiver: String
-
   def sender: String
+
+  def receiver: String
 
   def createTime: Long
 

@@ -22,6 +22,16 @@ class UnitApiService @Inject()(
 
   private val sceneId = config.get[Int]("unit.scene-id")
 
+  def extractContent(reply: JsValue): String = {
+    // Logger debug s"unit reply / ${Json prettyPrint reply}"
+    val actions = (reply \ "result" \ "action_list").as[Seq[JsValue]]
+    actions flatMap { action =>
+      val say = (action \ "say").as[String]
+      val hints = (action \ "hint_list").as[Seq[JsValue]]
+      say +: (hints map (hint => (hint \ "hint_query").as[String]))
+    } mkString "\n"
+  }
+
   def utterance(
       query: String,
       sessionId: String,

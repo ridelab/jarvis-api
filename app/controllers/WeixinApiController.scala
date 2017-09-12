@@ -4,65 +4,53 @@ import javax.inject._
 
 import entities._
 import play.api._
-import play.api.libs.json._
 import play.api.mvc._
 import services._
 
 import scala.concurrent._
+import scala.util._
 
 @Singleton
 class WeixinApiController @Inject()(
     cc: ControllerComponents,
     unitApiService: UnitApiService,
+    weixinMessageService: WeixinMessageService,
     weixinVerifyTokenService: WeixinVerifyTokenService,
 )(implicit executor: ExecutionContext)
     extends AbstractController(cc)
     with PrettyJsonResult {
 
   def utterance = (Action async parse.xml) { implicit request =>
-    val incomingMessageType = (request.body \ "MsgType").text
-
-    val outgoing = incomingMessageType match {
-      case TextMessage.Type =>
-        val incoming = TextMessage fromXml request.body
-        Logger debug s"weixin incoming message / $incoming"
-
-        unitApiService utterance (incoming.content, incoming.sender) map { reply =>
-          Logger debug s"unit reply / ${Json prettyPrint reply}"
-
-          val actions = (reply \ "result" \ "action_list").as[Seq[JsValue]]
-
-          val content = actions flatMap { action =>
-            val say = (action \ "say").as[String]
-            val hints = (action \ "hint_list").as[Seq[JsValue]]
-            say +: (hints map (hint => (hint \ "hint_query").as[String]))
-          } mkString "\n"
-
+    weixinMessageService fromXml request.body map {
+      case message: TextMessage =>
+        Logger trace s"incoming weixin text message / $message"
+        unitApiService utterance (message.content, message.sender) map { reply =>
           TextMessage(
-            receiver = incoming.sender,
-            sender = incoming.receiver,
-            createTime = incoming.createTime,
-            content = content,
+            receiver = message.sender,
+            sender = message.receiver,
+            createTime = message.createTime,
+            content = unitApiService extractContent reply,
           )
         }
-
-      case others =>
-        val xml = request.body
+      case message =>
         Future successful TextMessage(
-          receiver = (xml \ "FromUserName").text,
-          sender = (xml \ "ToUserName").text,
-          createTime = (xml \ "CreateTime").text.toLong,
-          content = s"unsupported message type: $others",
+          receiver = message.sender,
+          sender = message.receiver,
+          createTime = message.createTime,
+          content = s"unsupported message type: ${message.messageType}",
         )
+    } match {
+      case Success(r) =>
+        r map (weixinMessageService toXml _) map (Ok(_))
+      case Failure(e) =>
+        Future successful BadRequest(e.getMessage)
     }
-
-    outgoing map (_.toXml) map (Ok(_))
   }
 
   def verifyToken = Action { implicit request =>
     val parameters = request.queryString mapValues (_.head)
     val result = weixinVerifyTokenService verifyToken parameters
-    Logger debug s"weixin verify token / result = $result, parameters = $parameters"
+    Logger trace s"incoming weixin verify token / result = $result, parameters = $parameters"
     result map (Ok(_)) getOrElse BadRequest
   }
 

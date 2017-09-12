@@ -3,7 +3,7 @@ name := "jarvis-api"
 version := "0.0.0-SNAPSHOT"
 
 scalaVersion := "2.12.3"
-scalacOptions ++= Seq("-deprecation")
+scalacOptions ++= Seq("-feature", "-deprecation")
 
 lazy val root = (project in file(".")) enablePlugins PlayScala
 

@@ -17,12 +17,19 @@ class UnitApiController @Inject()(
     with PrettyJsonResult {
 
   def utterance = (Action async parse.json) { implicit request =>
-    val query = (request.body \ "query").as[String]
-    val sessionId = (request.body \ "sessionId").as[String]
-
-    Logger trace s"unit utterance / sessionId = '$sessionId', query = '$query'"
-
-    unitApiService utterance (query, sessionId) map (Ok(_))
+    val reply = for {
+      query <- (request.body \ "query").asOpt[String]
+      sessionId <- (request.body \ "sessionId").asOpt[String]
+    } yield {
+      Logger trace s"incoming unit utterance / sessionId = '$sessionId', query = '$query'"
+      unitApiService utterance (query, sessionId)
+    }
+    reply match {
+      case Some(r) =>
+        r map (Ok(_))
+      case None =>
+        Future successful BadRequest
+    }
   }
 
 }
