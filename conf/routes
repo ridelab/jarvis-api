@@ -5,6 +5,9 @@ GET         /                           controllers.HomeController.index
 + nocsrf
 POST        /api/unit/utterance         controllers.UnitApiController.utterance
 
++ nocsrf
+POST        /api/douban/search          controllers.DoubanApiController.searchMovie
+
 GET         /api/weixin/callback        controllers.WeixinApiController.verifyToken
 
 + nocsrf

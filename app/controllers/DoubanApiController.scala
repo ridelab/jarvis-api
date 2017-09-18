@@ -3,30 +3,30 @@ package controllers
 import javax.inject._
 
 import play.api._
+import play.api.libs.json._
 import play.api.mvc._
 import services._
 
 import scala.concurrent._
 
 @Singleton
-class UnitApiController @Inject()(
+class DoubanApiController @Inject()(
     cc: ControllerComponents,
-    unitApiService: UnitApiService,
+    doubanApiService: DoubanApiService,
 )(implicit executor: ExecutionContext)
     extends AbstractController(cc)
     with PrettyJsonResult {
 
-  def utterance = (Action async parse.json) { implicit request =>
+  def searchMovie = (Action async parse.json) { implicit request =>
     val ro = for {
       query <- (request.body \ "query").asOpt[String]
-      sessionId <- (request.body \ "sessionId").asOpt[String]
     } yield {
-      Logger trace s"incoming unit utterance / sessionId = '$sessionId', query = '$query'"
-      unitApiService utterance (query, sessionId)
+      Logger trace s"incoming unit utterance / query = '$query'"
+      doubanApiService searchMovie query
     }
     ro match {
       case Some(r) =>
-        r map (Ok(_))
+        r map (Json toJson _) map (Ok(_))
       case None =>
         Future successful BadRequest
     }

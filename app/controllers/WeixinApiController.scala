@@ -7,6 +7,7 @@ import play.api._
 import play.api.mvc._
 import services._
 
+import scala.async.Async._
 import scala.concurrent._
 import scala.util._
 
@@ -14,6 +15,7 @@ import scala.util._
 class WeixinApiController @Inject()(
     cc: ControllerComponents,
     unitApiService: UnitApiService,
+    doubanApiService: DoubanApiService,
     weixinMessageService: WeixinMessageService,
     weixinVerifyTokenService: WeixinVerifyTokenService,
 )(implicit executor: ExecutionContext)
@@ -23,13 +25,30 @@ class WeixinApiController @Inject()(
   def utterance = (Action async parse.xml) { implicit request =>
     weixinMessageService fromXml request.body map {
       case message: TextMessage =>
-        Logger trace s"incoming weixin text message / $message"
-        unitApiService utterance (message.content, message.sender) map { reply =>
+        async {
+          Logger trace s"incoming weixin text message / $message"
+          val reply = await(unitApiService utterance (message.content, message.sender))
+          val content = if (unitApiService isSatisfied reply) {
+            val words = unitApiService selectWords reply
+            val movies = await(doubanApiService searchMovie (words mkString " "))
+            movies sortBy (-_.rating.average) take 5 map { movie =>
+              s"""${movie.title}
+                 |评分: ${movie.rating.average}
+                 |类型: ${movie.genres mkString " "}
+                 |导演: ${movie.directors map (_.name) mkString " "}
+                 |主演: ${movie.casts map (_.name) mkString " "}
+                 |年代: ${movie.year}
+                 |${movie.alt}
+               """.stripMargin.trim
+            } mkString "\n----------\n"
+          } else {
+            unitApiService extractContent reply
+          }
           TextMessage(
             receiver = message.sender,
             sender = message.receiver,
             createTime = message.createTime,
-            content = unitApiService extractContent reply,
+            content = content,
           )
         }
       case message =>
