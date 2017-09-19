@@ -7,17 +7,31 @@
 
 ## usage
 
-```bash
-sbt test
+firstly modify configuration in `conf/application.conf`
 
+### development
+
+```bash
 sbt run
-open http://localhost:9000
+ngrok http 9000
+```
+
+### deploying
+
+```bash
+sbt dist
+cd target/universal
+unzip jarvis-api-*.zip
+cd jarvis-api-*
+nohup bin/jarvis-api -Dplay.http.secret.key=$SECRET -Dhttp.port=$PORT &
+# kill $(cat RUNNING_PID)
 ```
 
 ## references
 
 - <https://www.playframework.com/documentation>
-- <https://github.com/playframework/play-scala-rest-api-example>
+- <https://www.playframework.com/documentation/latest/Deploying>
+- <https://www.playframework.com/documentation/latest/ProductionConfiguration>
 
 [build-badge]: https://img.shields.io/travis/airt/jarvis-api.svg
 [build-status]: https://travis-ci.org/airt/jarvis-api

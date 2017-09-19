@@ -32,7 +32,7 @@ class WeixinApiController @Inject()(
             val words = unitApiService selectWords reply
             val movies = await(doubanApiService searchMovie (words mkString " "))
             movies sortBy (-_.rating.average) take 5 map { movie =>
-              s"""${movie.title}
+              s"""${movie.title}${if (movie.originalTitle.nonEmpty) s" (${movie.originalTitle})" else ""}
                  |评分: ${movie.rating.average}
                  |类型: ${movie.genres mkString " "}
                  |导演: ${movie.directors map (_.name) mkString " "}

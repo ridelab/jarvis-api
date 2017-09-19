@@ -6,6 +6,7 @@ import play.api.libs.json._
 case class Movie(
     id: String,
     title: String,
+    originalTitle: String,
     rating: Rating,
     genres: Seq[String],
     casts: Seq[Celebrity],
@@ -18,6 +19,8 @@ case class Movie(
 
 object Movie {
 
+  // noinspection TypeAnnotation
+  implicit val jsonConfig = JsonConfiguration(JsonNaming.SnakeCase)
   implicit val jsonFormatForImages: OFormat[Images] = Json.format[Images]
   implicit val jsonFormatForRating: OFormat[Rating] = Json.format[Rating]
   implicit val jsonFormatForCelebrity: OFormat[Celebrity] = Json.format[Celebrity]

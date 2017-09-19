@@ -23,7 +23,7 @@ class DoubanApiService @Inject()(
       query: String,
       tag: String = "",
       start: Int = 0,
-      count: Int = 10,
+      count: Int = 20,
   ): Future[Seq[Movie]] = async {
     val url = s"$baseUrl/v2/movie/search"
     val parameters = Seq(
