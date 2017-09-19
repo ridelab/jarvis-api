@@ -16,7 +16,7 @@ sbt run
 ngrok http 9000
 ```
 
-### deploying
+### deployment
 
 ```bash
 sbt dist
