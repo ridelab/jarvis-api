@@ -1,9 +1,4 @@
-# jarvis-api
-
-<!--
-[![Build Status][build-badge]][build-status]
-[![Test Coverage][coverage-badge]][coverage-result]
--->
+# onenet-rc
 
 ## usage
 
@@ -13,7 +8,7 @@ firstly modify configuration in `conf/application.conf`
 
 ```bash
 sbt run
-ngrok http 9000
+ngrok http 5600
 ```
 
 ### deployment
@@ -21,19 +16,13 @@ ngrok http 9000
 ```bash
 sbt dist
 cd target/universal
-unzip jarvis-api-*.zip
-cd jarvis-api-*
-nohup bin/jarvis-api -Dplay.http.secret.key=$SECRET -Dhttp.port=$PORT &
+unzip onenet-rc-*.zip
+cd onenet-rc-*
+nohup bin/onenet-rc -Dplay.http.secret.key=$SECRET -Dhttp.port=$PORT &
 # kill $(cat RUNNING_PID)
 ```
 
 ## references
 
+- <https://open.iot.10086.cn/doc/art283.html#68>
 - <https://www.playframework.com/documentation>
-- <https://www.playframework.com/documentation/latest/Deploying>
-- <https://www.playframework.com/documentation/latest/ProductionConfiguration>
-
-[build-badge]: https://img.shields.io/travis/airt/jarvis-api.svg
-[build-status]: https://travis-ci.org/airt/jarvis-api
-[coverage-badge]: https://img.shields.io/coveralls/airt/jarvis-api.svg
-[coverage-result]: https://coveralls.io/github/airt/jarvis-api
