@@ -2,15 +2,7 @@
 
 GET         /                           controllers.HomeController.index
 
-+ nocsrf
-POST        /api/unit/utterance         controllers.UnitApiController.utterance
+GET         /api/onenet/callback        controllers.OneNetApiController.verifyToken
 
 + nocsrf
-POST        /api/douban/search          controllers.DoubanApiController.searchMovie
-
-GET         /api/weixin/callback        controllers.WeixinApiController.verifyToken
-
-+ nocsrf
-POST        /api/weixin/callback        controllers.WeixinApiController.utterance
-
-GET         /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+POST        /api/onenet/callback        controllers.OneNetApiController.receive

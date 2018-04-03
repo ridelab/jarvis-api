@@ -2,13 +2,11 @@
 
 ## usage
 
-firstly modify configuration in `conf/application.conf`
-
 ### development
 
 ```bash
 sbt run
-ngrok http 5600
+ngrok http 9000
 ```
 
 ### deployment
