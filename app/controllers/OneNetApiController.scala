@@ -1,15 +1,15 @@
 package controllers
 
 import javax.inject._
-
 import play.api._
 import play.api.mvc._
+import services._
 
 @Singleton
-class OneNetApiController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
+class OneNetApiController @Inject()(handler: DataHandler, cc: ControllerComponents) extends AbstractController(cc) {
 
   def receive = Action(parse.json) { implicit request =>
-    Logger debug request.body.toString
+    handler handle request.body
     Ok
   }
 
