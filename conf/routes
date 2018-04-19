@@ -2,9 +2,11 @@
 
 GET         /                           controllers.HomeController.index
 
-GET         /ws                         controllers.HomeController.socket
+GET         /ws                         controllers.SocketController.socket
 
 GET         /api/onenet/callback        controllers.OneNetApiController.verifyToken
 
 + nocsrf
 POST        /api/onenet/callback        controllers.OneNetApiController.receive
+
+GET         /assets/*file               controllers.Assets.versioned(file)

@@ -1,0 +1,14 @@
+@(title: String, assets: AssetsFinder)(content: Html)
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>@title</title>
+    <link rel="icon" type="image/png" href="@(assets path "images/favicon.png")"/>
+    <link rel="stylesheet" media="screen" href="@(assets path "stylesheets/index.css")"/>
+    <script type="text/javascript" src="@(assets path "javascripts/index.js")"></script>
+  </head>
+  <body>
+  @content
+  </body>
+</html>
