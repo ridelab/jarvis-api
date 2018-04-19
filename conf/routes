@@ -2,6 +2,8 @@
 
 GET         /                           controllers.HomeController.index
 
+GET         /ws                         controllers.HomeController.socket
+
 GET         /api/onenet/callback        controllers.OneNetApiController.verifyToken
 
 + nocsrf
